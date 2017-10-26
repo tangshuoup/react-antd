@@ -1,5 +1,7 @@
 import React,{Component} from 'react';
-import {Table,Input,Modal} from 'antd';
+import {Link} from 'react-router-dom';
+import {Table,Input,Modal,Spin} from 'antd';
+import {list} from '../../../untils/service';
 import {Bcrumb} from '../../components/bcrumb/bcrumb';
 import './home.scss';
 const Search = Input.Search;
@@ -8,42 +10,95 @@ class Home extends Component{
 	constructor(props) {
 		super(props);
 		this.columns=[{
-		  title: '姓名',
-		  dataIndex: 'name',
-		  key: 'name',
+		  title: '电影名字',
+		  dataIndex: 'title'
 		}, {
-		  title: '年龄',
-		  dataIndex: 'age',
-		  key: 'age',
+		  title: '导演',
+		  dataIndex: 'directors',
+		   width:'20%',
+		  render:(text,record,index)=>(
+		  	<div className='director'>{
+		  		text.map((item,key)=>{
+		  			return (
+		  				<span key={key}>
+		  				{item.name}
+		  				</span>
+		  				)		
+		  		})
+		  	}
+		  	</div>
+		  	)		  	
+		},{
+		  title: '主演',
+		  dataIndex: 'casts',
+		  width:'30%',
+		  render:(text,record,index)=>(
+		  		<div className='cast'>{
+		  			text.map((item,key)=>{
+			  			return (
+			  				<span key={key}>
+			  				 {item.name}
+			  				</span>
+			  				)		
+			  		})
+		  		}
+		  		</div>
+		  	)
+		},{
+		  title: '上映时间',
+		  dataIndex: 'mainland_pubdate'
 		}, {
-		  title: '住址',
-		  dataIndex: 'address',
-		  key: 'address',
+		  title: '时长',
+		  dataIndex: 'durations[0]'
 		},{
 		  title: '操作',
 		  key: 'action',
 		  render:(text,record)=>(
 		  	<span>
 		  		<a onClick={this.showDeleteConfirm}>删除</a>
+		  		<span className="ant-divider" />
+		  		<Link to='/one/page1'>详情</Link>
 		  	</span>
 		  )
 		}];
 		this.state={
-			tableData:[{
-				key:'1',
-				name:'林宥嘉',
-				age:42,
-				address:'杭州市余杭区福鼎家园'
-			},{
-				key:'2',
-				name:'林宥嘉',
-				age:24,
-				address:'杭州市余杭区福鼎家园'
-			}]
+			tableData:[],
+			pagination: {},
+			loading:false,
+			data:{
+				apikey:'0b2bdeda43b5688921839c8ecb20399b',
+				city:'杭州',
+				start:0,
+				count:10
+			}
 		}
+	}
+	componentDidMount() {
+		this.setState({loading:true})
+		this.initData(this.state.data);
+	}
+	async initData (prams){
+		let listData = await list(prams);
+		const pagination={...this.state.pagination};
+		pagination.total=listData.data.total;
+		this.setState({
+			tableData:listData.data.subjects,
+			loading:false,
+			pagination
+		});
 	}
 	onSlectChange(selectedRowKeys, selectedRows){
 		 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+	}
+	handleTableChange=(pagination)=>{
+		console.log(pagination.current);
+		const data ={...this.state.data};
+		data.start=pagination.current-1;
+		this.setState({
+			loading:true,
+			data:data
+		})
+		this.initData(this.state.data);
 	}
 	search(value){
 		console.log(value);
@@ -77,7 +132,17 @@ class Home extends Component{
 				    style={{ width: 200 }}
 				    onSearch={(value)=>this.search(value)}
 				  />
-					<Table rowSelection={rowSelection} dataSource={this.state.tableData} columns={this.columns}></Table>
+				  <Spin spinning={this.state.loading}>
+					<Table 
+					rowSelection={rowSelection} 
+					dataSource={this.state.tableData} 
+					columns={this.columns}
+					rowKey={record => record.id}
+					pagination={this.state.pagination}
+					 onChange={this.handleTableChange}
+					>
+					</Table>
+					</Spin>
 				</div>
 			</div>
 		) 
