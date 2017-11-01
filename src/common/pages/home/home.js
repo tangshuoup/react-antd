@@ -57,7 +57,7 @@ class Home extends Component{
 		  	<span>
 		  		<a onClick={this.showDeleteConfirm}>删除</a>
 		  		<span className="ant-divider" />
-		  		<Link to='/one/page1'>详情</Link>
+		  		<Link to={'/detail/'+text.id}>详情</Link>
 		  	</span>
 		  )
 		}];
@@ -91,14 +91,12 @@ class Home extends Component{
 		 console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
 	}
 	handleTableChange=(pagination)=>{
-		console.log(pagination.current);
-		const data ={...this.state.data};
+		let data ={...this.state.data};
 		data.start=pagination.current-1;
 		this.setState({
 			loading:true,
-			data:data
 		})
-		this.initData(this.state.data);
+		this.initData(data);
 	}
 	search(value){
 		console.log(value);

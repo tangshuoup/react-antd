@@ -1,6 +1,5 @@
 import React from 'react';
-import { Route,Router,Switch} from 'react-router-dom';//创建route所需
-import createHistory from 'history/createBrowserHistory';
+import { Route,BrowserRouter as Router,Switch} from 'react-router-dom';//创建route所需
 import Loadable from 'react-loadable';
 import Loading from '../components/loading/loading';
 import Layout from '../components/layout/layout';
@@ -19,20 +18,25 @@ const Page1 = Loadable({
 	loading: Loading,
 	delay: 300
 });
-const history = createHistory()
+const Detail = Loadable({
+	loader:()=>import ('../pages/detail/detail.jsx'),
+	loading:Loading,
+	delay:300
+});
 let RouterMap=()=>{
-		return(
-			<Router history={history}>
-				<Switch>
-					<Route exact path='/' component={Login}>			
-					</Route>
-					<Layout>
-						<Route path='/home' component={Home}/>
-						<Route path='/one/page1' component={Page1}/>			
-					</Layout>
-				</Switch>
-			</Router>	
-		)
+	return(
+		<Router>
+			<Switch>
+				<Route exact path='/' component={Login}>			
+				</Route>
+				<Layout>
+					<Route path='/home' component={Home}/>
+					<Route path='/one/page1' component={Page1}/>
+					<Route path='/detail/:id' component={Detail}/>			
+				</Layout>
+			</Switch>
+		</Router>	
+	)
 }
 	
 export default RouterMap
